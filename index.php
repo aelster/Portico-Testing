@@ -153,7 +153,8 @@
         <script>
 // Configure account
 GlobalPayments.configure({
-    publicApiKey: "$gHeartlandPublicKey"
+    // publicApiKey: "$gHeartlandPublicKey"
+    publicApiKey: "pkapi_cert_oLa5iz3cjvzChuDkDj"
 });
         </script>
         <script src="assets/credit-card.js"></script>

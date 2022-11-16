@@ -10,6 +10,7 @@ cardForm.ready(() => {
 cardForm.on("token-success", (resp) => {
     // add payment token to form as a hidden input
     document.querySelector("input[name=token_value]").value = resp.paymentReference;
+    document.querySelector("input[name=cardholder_name]").value = resp.details.cardholderName;
     document.getElementById('payment_form').submit();
 });
 

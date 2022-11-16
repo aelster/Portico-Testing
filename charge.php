@@ -6,7 +6,6 @@ require_once('vendor/autoload.php');
 use GlobalPayments\Api\PaymentMethods\CreditCardData;
 use GlobalPayments\Api\ServicesContainer;
 use GlobalPayments\Api\Entities\Address;
-use GlobalPayments\Api\Entities\Customer;
 use GlobalPayments\Api\ServiceConfigs\Gateways\PorticoConfig;
 
 $formData = [];
@@ -28,18 +27,23 @@ foreach( $default_array as $key => $val ) {
 }
 
 $config = new PorticoConfig();
-$config->secretApiKey = "$gHeartlandSecretKey";
+// $config->secretApiKey = "$gHeartlandSecretKey";
+$config->secretApiKey = "skapi_cert_MZ64BQBBoHAA5N2pWWCvZ7c1HTKDM2g_4HsnyC6rIQ"; // 777703754958
 ServicesContainer::configureService($config);
 
 $card = new CreditCardData();
 $card->token = $formData['token_value'];
+$card->cardHolderName = htmlspecialchars($formData['cardholder_name']);
 $invoiceNumber = htmlspecialchars($formData['invoice_number']);
 
-$customer = new Customer();
-$customer->firstName = htmlspecialchars($formData['FirstName']);
-$customer->lastName = htmlspecialchars($formData['LastName']);
-$customer->homePhone = htmlspecialchars($formData['PhoneNumber']);
-$customer->email = htmlspecialchars($formData['Email']);
+/**
+ * Customer object is unused in a simple charge like this one
+ */
+// $customer = new Customer();
+// $customer->firstName = htmlspecialchars($formData['FirstName']);
+// $customer->lastName = htmlspecialchars($formData['LastName']);
+// $customer->homePhone = htmlspecialchars($formData['PhoneNumber']);
+// $customer->email = htmlspecialchars($formData['Email']);
 
 $address = new Address();
 $address->streetAddress1 = htmlspecialchars($formData['Address']);
@@ -55,7 +59,8 @@ try {
     $response = $card->charge($amount)
         ->withCurrency('USD')
         ->withAddress($address)
-        ->withCustomerData($customer)
+        // ->withCustomerData($customer)
+        ->withInvoiceNumber($invoiceNumber)
         ->withAllowDuplicates(true)
         ->execute();
 
@@ -64,8 +69,9 @@ try {
             htmlspecialchars( $formData['cardholder_name']) .
             ', for your order of $' . filter_input( INPUT_POST, "payment_amount", FILTER_SANITIZE_NUMBER_FLOAT) . '.</p>';
 
-    echo "<b>Transaction Success! </b><br/> Transaction Id: " . $response->transactionId;
-    echo "<br />Invoice Number: " . isset($invoiceNumber) ? $invoiceNumber : "";
+    echo "<b>Transaction Success! </b><br/> Transaction Id: "
+        . $response->transactionId . "<br />Invoice Number: "
+        . (isset($invoiceNumber) ? $invoiceNumber : "");
 
 } catch (Exception $e) {
     echo 'Failure: ' . $e->getMessage();
